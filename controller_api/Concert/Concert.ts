@@ -100,6 +100,21 @@ router.get("/concertShow/:cid", (req, res) => {
   );
 });
 
+router.get("/concertTicket/:cid", (req, res) => {
+  const cid = +req.params.cid;
+  conn.query(
+    "SELECT Concert_Ticket.CTID, Concert_Ticket.concert_ID, Concert.name_concert, Concert_Ticket.show_ID, Concert_ShowTime.show_concert, Concert_ShowTime.time_show_concert, Concert_Ticket.type_ticket_ID, Concert_Ticket_Type.name_type_ticket, Concert_Ticket.ticket_zone, Concert_Ticket.price FROM Concert_Ticket INNER JOIN Concert ON Concert.CID = Concert_Ticket.concert_ID INNER JOIN Concert_ShowTime ON Concert_ShowTime.CSTID = Concert_Ticket.show_ID INNER JOIN Concert_Ticket_Type ON Concert_Ticket_Type.CTTID = Concert_Ticket.type_ticket_ID WHERE Concert_Ticket.concert_ID = ?",
+    [cid],
+    (err, result) => {
+      if (err) {
+        res.status(500).json({ error: err.message });
+      } else {
+        res.status(200).json(result);
+      }
+    }
+  );
+});
+
 router.post(
   "/addconcert/:uid",
   // fileUpload.diskLoader.single("file"),
@@ -278,7 +293,7 @@ router.post("/addticket/:cid", (req, res) => {
           res.status(500).send("Not Found Concert");
         } else {
           let sql =
-          "INSERT INTO Concert_Ticket (`concert_ID`,`show_ID`,`type_ticket_ID`,`ticket_zone`,`price`) VALUES (?,?,?,?,?)";
+            "INSERT INTO Concert_Ticket (`concert_ID`,`show_ID`,`type_ticket_ID`,`ticket_zone`,`price`) VALUES (?,?,?,?,?)";
           sql = mysql.format(sql, [
             (concert.concert_ID = cid),
             concert.show_ID,

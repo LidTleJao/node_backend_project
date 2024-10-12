@@ -1,0 +1,54 @@
+import express from "express";
+import { conn } from "../../../app";
+import mysql from "mysql";
+import { HotelDealPostReq } from "../../../model/Request/Packet/Hotel/HotelDealPostReq";
+
+export const router = express.Router();
+
+router.post("/appHotelDeal/:rid/:nbr", (req, res) => {
+  const rid = parseInt(req.params.rid);
+  const nbr = parseInt(req.params.nbr);
+  const hotelDeal: HotelDealPostReq = req.body;
+
+  conn.query(
+    "SELECT * FROM Hotel_Room WHERE HRID = ? AND Number_of_rooms >= ?",
+    [rid, nbr],
+    async (err, result) => {
+      if (err) {
+        res.status(500).json({ error: err.message });
+      } else {
+        if (result[0] == null) {
+          res.status(500).send("Not Found Room Because " + err);
+        } else {
+          // res.status(200).json(result);
+          let sql =
+            "INSERT  INTO Hotel_Deals (`room_ID`,`status_ID`,`price`,`number_of_rooms`,`s_datetime`,`e_datetime`) VALUES(?,?,?,?,?,?)";
+          sql = mysql.format(sql, [
+            (hotelDeal.room_ID = rid),
+            hotelDeal.status_ID,
+            hotelDeal.price,
+            (hotelDeal.number_of_rooms = nbr),
+            hotelDeal.s_datetime,
+            hotelDeal.e_datetime,
+          ]);
+
+          conn.query(sql, (err, result) => {
+            if (err) {
+              res.status(401).json({
+                affected_row: 0,
+                last_idx: 0,
+                result: err.sqlMessage,
+              });
+            } else {
+              res.status(201).json({
+                affected_row: result.affectedRows,
+                last_idx: result.insertId,
+                result: "",
+              });
+            }
+          });
+        }
+      }
+    }
+  );
+});

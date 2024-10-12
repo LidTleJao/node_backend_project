@@ -5,6 +5,8 @@ import { router as room } from "./controller_api/Hotel/Room";
 import { router as typeuser } from "./controller_api/User/typeuser";
 import { router as type_hotel } from "./controller_api/Hotel/Type_Hotel";
 import { router as concert } from "./controller_api/Concert/Concert";
+import { router as hotel_deals } from "./controller_api/Packet/Hotel/HotelDeals";
+import { router as concert_deals } from "./controller_api/Packet/Concert/ConcertDeals";
 import bodyParser from "body-parser";
 import mysql from "mysql";
 import cors from "cors";
@@ -33,6 +35,8 @@ app.use("/room", room);
 app.use("/type_user", typeuser);
 app.use("/type_hotel", type_hotel);
 app.use("/concert", concert);
+app.use("/hoteldeals", hotel_deals);
+app.use("/concertdeals", concert_deals);
 // app.use("/",(req, res) =>{
 //     res.send("Hello World!!!");
 // });
