@@ -49,7 +49,7 @@ router.get("/:cid", (req, res) => {
       if (err) {
         res.status(500).json({ error: err.message });
       } else {
-        res.status(200).json(result[0]);
+        res.status(200).json(result);
       }
     }
   );

@@ -43,8 +43,8 @@ router.get("/allHotel", (req, res) => {
 router.get("/:hid", (req, res) => {
   const HID = +req.params.hid;
   conn.query(
-    "SELECT Hotel.HID, Hotel.hotel_user_ID,User.name_user, Hotel.hotel_type_ID, Type_Hotel.typename_hotel, Hotel.name, Hotel.address, Hotel.detail, Hotel.latitude, Hotel.longtitude, Hotel.datetime_addhotel, Hotel_Room.HRID, Hotel_Room.hotel_ID, Hotel_Room.price, Hotel_Room.Number_of_guests, Hotel_Room.Number_of_rooms, Hotel_Room.room_type_ID, Room_Type.type_room, Hotel_Room.room_view_type_ID, Room_Type_View.type_view_name_room, Hotel_Room.room_status_ID, Room_Status.status_name_room" +
-      " FROM Hotel INNER JOIN Type_Hotel ON Type_Hotel.THID = Hotel.hotel_type_ID INNER JOIN User ON User.UID = Hotel.hotel_user_ID INNER JOIN Hotel_Room ON Hotel_ID = Hotel.HID INNER JOIN Room_Type ON Room_Type.RTID = Hotel_Room.room_type_ID INNER JOIN Room_Type_View ON Room_Type_View.RTVID = Hotel_Room.room_view_type_ID INNER JOIN Room_Status ON Room_Status.RSID = Hotel_Room.room_status_ID WHERE Hotel.HID = ?",
+    "SELECT Hotel.HID, Hotel.hotel_user_ID,User.name_user, Hotel.hotel_type_ID, Type_Hotel.typename_hotel, Hotel.name, Hotel.address, Hotel.detail, Hotel.latitude, Hotel.longtitude, Hotel.datetime_addhotel FROM Hotel INNER JOIN Type_Hotel ON Type_Hotel.THID = Hotel.hotel_type_ID INNER JOIN User ON User.UID = Hotel.hotel_user_ID WHERE Hotel.HID = ?",
+      
     [HID],
     (err, result) => {
       if (err) {
@@ -89,8 +89,8 @@ router.get("/hotelImage/:hid", (req, res) => {
 router.get("/hotelByUser/:uid", (req, res) => {
   const UID = +req.params.uid;
   conn.query(
-    "SELECT Hotel.HID, Hotel.hotel_user_ID,User.name_user, Hotel.hotel_type_ID, Type_Hotel.typename_hotel, Hotel.name, Hotel.address, Hotel.detail, Hotel.latitude, Hotel.longtitude, Hotel.datetime_addhotel, Hotel_Room.HRID, Hotel_Room.hotel_ID, Hotel_Room.price, Hotel_Room.Number_of_guests, Hotel_Room.Number_of_rooms, Hotel_Room.room_type_ID, Room_Type.type_room, Hotel_Room.room_view_type_ID, Room_Type_View.type_view_name_room, Hotel_Room.room_status_ID, Room_Status.status_name_room " +
-      "FROM Hotel INNER JOIN Type_Hotel ON Type_Hotel.THID = Hotel.hotel_type_ID INNER JOIN User ON User.UID = Hotel.hotel_user_ID  INNER JOIN Hotel_Room ON Hotel_ID = Hotel.HID INNER JOIN Room_Type ON Room_Type.RTID = Hotel_Room.room_type_ID INNER JOIN Room_Type_View ON Room_Type_View.RTVID = Hotel_Room.room_view_type_ID INNER JOIN Room_Status ON Room_Status.RSID = Hotel_Room.room_status_ID WHERE Hotel.hotel_user_ID = ?",
+    "SELECT Hotel.HID, Hotel.hotel_user_ID,User.name_user, Hotel.hotel_type_ID, Type_Hotel.typename_hotel, Hotel.name, Hotel.address, Hotel.detail, Hotel.latitude, Hotel.longtitude, Hotel.datetime_addhotel FROM Hotel INNER JOIN Type_Hotel ON Type_Hotel.THID = Hotel.hotel_type_ID INNER JOIN User ON User.UID = Hotel.hotel_user_ID WHERE Hotel.hotel_user_ID = ?",
+      
     [UID],
     (err, result) => {
       if (err) {
