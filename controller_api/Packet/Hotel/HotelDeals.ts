@@ -5,6 +5,19 @@ import { HotelDealPostReq } from "../../../model/Request/Packet/Hotel/HotelDealP
 
 export const router = express.Router();
 
+router.get("/allHotelDeal", (req, res) =>{
+  conn.query(
+    "SELECT Hotel_Deals.HDID, Hotel_Deals.room_ID, Hotel.name, Hotel_Room.room_type_ID, Room_Type.type_room, Hotel_Room.room_view_type_ID, Room_Type_View.type_view_name_room, Hotel_Deals.status_ID, Status_Deals.name_status, Hotel_Deals.price, Hotel_Deals.number_of_rooms, Hotel_Deals.s_datetime, Hotel_Deals.e_datetime FROM Hotel_Deals INNER JOIN Hotel_Room ON Hotel_Room.HRID = Hotel_Deals.room_ID INNER JOIN Status_Deals ON Status_Deals.SDID = Hotel_Deals.status_ID INNER JOIN Hotel ON Hotel.HID = Hotel_Room.hotel_ID INNER JOIN Room_Type ON Room_Type.RTID = Hotel_Room.room_type_ID INNER  JOIN Room_Type_View ON Room_Type_View.RTVID = Hotel_Room.room_view_type_ID",
+    (err, result)=>{
+      if (err) {
+        res.status(500).json({ error: err.message });
+      } else {
+        res.status(200).json(result);
+      }
+    }
+  );
+})
+
 router.post("/appHotelDeal/:rid/:nbr", (req, res) => {
   const rid = parseInt(req.params.rid);
   const nbr = parseInt(req.params.nbr);
@@ -20,7 +33,6 @@ router.post("/appHotelDeal/:rid/:nbr", (req, res) => {
         if (result[0] == null) {
           res.status(500).send("Not Found Room Because " + err);
         } else {
-          // res.status(200).json(result);
           let sql =
             "INSERT  INTO Hotel_Deals (`room_ID`,`status_ID`,`price`,`number_of_rooms`,`s_datetime`,`e_datetime`) VALUES(?,?,?,?,?,?)";
           sql = mysql.format(sql, [

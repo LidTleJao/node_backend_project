@@ -5,6 +5,12 @@ import { ConcertDealPostReq } from "../../../model/Request/Packet/Concert/Concer
 
 export const router = express.Router();
 
+router.get("/allConcertDeal", (req, res) =>{
+  conn.query(
+    "SELECT Concert_Deals.CDID , "
+  );
+})
+
 router.post("/appConcertDeal/:ctid", (req, res) =>{
     const ctid = parseInt(req.params.ctid);
     const concertDeal: ConcertDealPostReq = req.body;
