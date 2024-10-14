@@ -73,7 +73,6 @@ router.post("/appHotelDeal/:rid/:nbr", (req, res) => {
             hotelDeal.s_datetime,
             hotelDeal.e_datetime,
           ]);
-
           conn.query(sql, (err, result) => {
             if (err) {
               res.status(401).json({
