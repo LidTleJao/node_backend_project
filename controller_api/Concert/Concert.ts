@@ -119,40 +119,55 @@ router.get("/concertTicket/:cid", (req, res) => {
 router.post("/updateConcert/:cid", async (req, res) => {
   const cid = parseInt(req.params.cid);
   const concert: UpdateConcertPostReq = req.body;
-  conn.query(
-    "SELECT * FROM Concert WHERE CID = ?",
-    [cid],
-    async (err, result) => {
-      if (err) {
-        res.status(500).send("Not Found Concert");
-      } else {
-        if (result[0] == null) {
-          res.status(500).send("Not Found Concert");
-        } else {
-          let sql =
-            "UPDATE Concert SET concert_type_ID = ?, show_schedule_concert = ?, lineup = ?, address_concert = ?,  detail_concert = ? WHERE CID = ?";
-          sql = mysql.format(sql, [
-            concert.concert_type_ID,
-            concert.show_schedule_concert,
-            concert.lineup,
-            concert.address_concert,
-            concert.detail_concert,
-            cid,
-          ]);
 
-          conn.query(sql, (err, result) => {
-            if (err) {
-              res.status(500).json({
-                affected_row: 0,
-                result: err.sqlMessage,
-              });
-            } else {
-              res.status(200).json({
-                affected_row: result.affectedRows,
-                result: result,
-              });
+  conn.query(
+    "SELECT * FROM Concert_Type WHERE CTID = ?",
+    [concert.concert_type_ID],
+    (err, result) => {
+      if (err) {
+        res.status(500).send("Error finding concert type");
+      } else {
+        if (result[0] === null) {
+          res.status(500).send("Error finding concert type");
+        } else {
+          conn.query(
+            "SELECT * FROM Concert WHERE CID = ?",
+            [cid],
+            (err, result) => {
+              if (err) {
+                res.status(500).send("Not Found Concert");
+              } else {
+                if (result[0] == null) {
+                  res.status(500).send("Not Found Concert");
+                } else {
+                  let sql =
+                    "UPDATE Concert SET concert_type_ID = ?, show_schedule_concert = ?, lineup = ?, address_concert = ?,  detail_concert = ? WHERE CID = ?";
+                  sql = mysql.format(sql, [
+                    concert.concert_type_ID,
+                    concert.show_schedule_concert,
+                    concert.lineup,
+                    concert.address_concert,
+                    concert.detail_concert,
+                    cid,
+                  ]);
+
+                  conn.query(sql, (err, result) => {
+                    if (err) {
+                      res.status(500).json({
+                        affected_row: 0,
+                        result: err.sqlMessage,
+                      });
+                    } else {
+                      res.status(200).json({
+                        affected_row: result.affectedRows,
+                        result: result,
+                      });
+                    }
+                  });
+                }
+              }
             }
-          });
+          );
         }
       }
     }
