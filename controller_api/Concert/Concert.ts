@@ -131,8 +131,6 @@ router.post(
     const filePerformance = (
       req.files as { [fieldname: string]: Express.Multer.File[] }
     ).performance_chart?.[0];
-    // const filePoster = req.files?.poster_concert?.[0];
-    // const filerPerformance = req.files?.performance_chart?.[0];
 
     if (!filePoster || !filePerformance) {
       return res.status(400).json({ error: "Missing file(s)" });
@@ -196,7 +194,7 @@ router.post(
   }
 );
 
-router.post("addurl/:cid", (req, res) => {
+router.post("/addurl/:cid", (req, res) => {
   const cid = parseInt(req.params.cid);
   const concert: ConcertUrlPostReq = req.body;
 
