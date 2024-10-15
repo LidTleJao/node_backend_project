@@ -13,6 +13,7 @@ import { ConcertPostReq } from "../../model/Request/Concert/ConcertPostReq";
 import { ConcertUrlPostReq } from "../../model/Request/Concert/ConcertUrlPostReq";
 import { ConcertShowTimePostReq } from "../../model/Request/Concert/ConcertShowTimePostReq";
 import { ConcertTicketPostReq } from "../../model/Request/Concert/ConcertTicketPostReq";
+import { UpdateConcertPostReq } from "../../model/Request/Concert/UpdateConcertPostReq";
 
 export const router = express.Router();
 
@@ -110,6 +111,49 @@ router.get("/concertTicket/:cid", (req, res) => {
         res.status(500).json({ error: err.message });
       } else {
         res.status(200).json(result);
+      }
+    }
+  );
+});
+
+router.post("/updateConcert/:cid", async (req, res) => {
+  const cid = parseInt(req.params.cid);
+  const concert: UpdateConcertPostReq = req.body;
+  conn.query(
+    "SELECT * FROM Concert WHERE CID = ?",
+    [cid],
+    async (err, result) => {
+      if (err) {
+        res.status(500).send("Not Found Concert");
+      } else {
+        if (result[0] == null) {
+          res.status(500).send("Not Found Concert");
+        } else {
+          let sql =
+            "UPDATE Concert SET concert_type_ID = ?, show_schedule_concert = ?, lineup = ?, address_concert = ?,  detail_concert = ? WHERE CID = ?";
+          sql = mysql.format(sql, [
+            concert.concert_type_ID,
+            concert.show_schedule_concert,
+            concert.lineup,
+            concert.address_concert,
+            concert.detail_concert,
+            cid,
+          ]);
+
+          conn.query(sql, (err, result) => {
+            if (err) {
+              res.status(500).json({
+                affected_row: 0,
+                result: err.sqlMessage,
+              });
+            } else {
+              res.status(200).json({
+                affected_row: result.affectedRows,
+                result: result,
+              });
+            }
+          });
+        }
       }
     }
   );
