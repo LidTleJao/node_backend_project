@@ -16,6 +16,7 @@ import { ConcertTicketPostReq } from "../../model/Request/Concert/ConcertTicketP
 import { UpdateConcertPostReq } from "../../model/Request/Concert/UpdateConcertPostReq";
 import { UpdateConcertChannelPostReq } from "../../model/Request/Concert/UpdateConcertChannel";
 import { UpdateConcertShowPostReq } from "../../model/Request/Concert/UpdateConcertShowPostReq";
+import { UpdateConcertTicketPostReq } from "../../model/Request/Concert/UpdateConcertTicketPostReq";
 
 export const router = express.Router();
 
@@ -249,61 +250,111 @@ router.post("/updateConcertChannel/:cid", (req, res) => {
   });
 });
 
-
-router.post("/updateConcertShow/:cid", (req, res) =>{
-  const cid  = parseInt(req.params.cid);
+router.post("/updateConcertShow/:cid", (req, res) => {
+  const cid = parseInt(req.params.cid);
   const concert: UpdateConcertShowPostReq = req.body;
 
-  conn.query(
-    "SELECT * FROM Concert WHERE CID = ?",[cid],
-    (err, result) =>{
-      if (err) {
+  conn.query("SELECT * FROM Concert WHERE CID = ?", [cid], (err, result) => {
+    if (err) {
+      res.status(500).send("Error finding concert");
+    } else {
+      if (result[0] == null) {
         res.status(500).send("Error finding concert");
       } else {
-        if (result[0] == null) {
-          res.status(500).send("Error finding concert");
-        } else {
-          conn.query(
-            "SELECT * FROM Concert_ShowTime WHERE CSTID = ?",
-            [concert.CSTID],
-            (err, result)=>{
-              if (err) {
+        conn.query(
+          "SELECT * FROM Concert_ShowTime WHERE CSTID = ?",
+          [concert.CSTID],
+          (err, result) => {
+            if (err) {
+              res.status(500).send("Error finding concert showtime");
+            } else {
+              if (result[0] == null) {
                 res.status(500).send("Error finding concert showtime");
               } else {
-                if (result[0] == null) {
-                  res.status(500).send("Error finding concert showtime");
-                } else {
-                  let updateSql =
+                let updateSql =
                   "UPDATE Concert_ShowTime SET concert_ID = ?, show_concert = ?, time_show_concert = ? WHERE CSTID = ?";
-                  updateSql = mysql.format(updateSql, [
-                    cid,
-                    concert.show_concert,
-                    concert.time_show_concert,
-                    concert.CSTID,
-                  ]);
+                updateSql = mysql.format(updateSql, [
+                  cid,
+                  concert.show_concert,
+                  concert.time_show_concert,
+                  concert.CSTID,
+                ]);
 
-                  conn.query(updateSql, (err, result) => {
-                    if (err) {
-                      res.status(500).json({
-                        affected_row: 0,
-                        result: err.sqlMessage,
-                      });
-                    } else {
-                      res.status(200).json({
-                        affected_row: result.affectedRows,
-                        message: "Concert showtime updated successfully",
-                        result: result,
-                      });
-                    }
-                  });
-                }
+                conn.query(updateSql, (err, result) => {
+                  if (err) {
+                    res.status(500).json({
+                      affected_row: 0,
+                      result: err.sqlMessage,
+                    });
+                  } else {
+                    res.status(200).json({
+                      affected_row: result.affectedRows,
+                      message: "Concert showtime updated successfully",
+                      result: result,
+                    });
+                  }
+                });
               }
             }
-          );
-        }
+          }
+        );
       }
     }
-  );
+  });
+});
+
+router.post("/updateConcertTicket/:cid", (req, res) => {
+  const cid = parseInt(req.params.cid);
+  const concert: UpdateConcertTicketPostReq = req.body;
+
+  conn.query("SELECT * FROM Concert WHERE CID = ?", [cid], (err, result) => {
+    if (err) {
+      res.status(500).send("Error finding concert");
+    } else {
+      if (result[0] === null) {
+        res.status(500).send("Error finding concert");
+      } else {
+        conn.query(
+          "SELECT * FROM Concert_Ticket_Type WHERE CTTID = ?",
+          [concert.type_ticket_ID],
+          (err, result) => {
+            if (err) {
+              res.status(500).send("Error finding concert ticket type");
+            } else {
+              if (result[0] === null) {
+                res.status(500).send("Error finding concert ticket type");
+              } else {
+                let updateSql =
+                  "UPDATE Concert_Tickket SET concert_ID = ?, type_ticket_ID = ?, ticket_zone = ?, price = ? WHERE CTID = ?";
+                updateSql = mysql.format(updateSql, [
+                  (concert.concert_ID = cid),
+                  concert.type_ticket_ID,
+                  concert.ticket_zone,
+                  concert.price,
+                  concert.CTID,
+                ]);
+
+                conn.query(updateSql, (err, result) => {
+                  if (err) {
+                    res.status(500).json({
+                      affected_row: 0,
+                      result: err.sqlMessage,
+                    });
+                  } else {
+                    res.status(200).json({
+                      affected_row: result.affectedRows,
+                      message: "Concert tickket updated successfully",
+                      result: result,
+                    });
+                  }
+                });
+              }
+            }
+          }
+        );
+      }
+    }
+  });
 });
 
 router.post(
@@ -401,7 +452,10 @@ router.post("/addurl/:cid", (req, res) => {
         } else {
           let sql =
             "INSERT INTO Concert_Channel (`concert_ID`,`channel`) VALUES (?,?)";
-          sql = mysql.format(sql, [(concert.concert_ID = cid), concert.channel]);
+          sql = mysql.format(sql, [
+            (concert.concert_ID = cid),
+            concert.channel,
+          ]);
 
           conn.query(sql, (err, result) => {
             if (err) {
