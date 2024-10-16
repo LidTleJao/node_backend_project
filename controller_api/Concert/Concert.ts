@@ -14,6 +14,7 @@ import { ConcertUrlPostReq } from "../../model/Request/Concert/ConcertUrlPostReq
 import { ConcertShowTimePostReq } from "../../model/Request/Concert/ConcertShowTimePostReq";
 import { ConcertTicketPostReq } from "../../model/Request/Concert/ConcertTicketPostReq";
 import { UpdateConcertPostReq } from "../../model/Request/Concert/UpdateConcertPostReq";
+import { UpdateConcertChannelPostReq } from "../../model/Request/Concert/UpdateConcertChannel";
 
 export const router = express.Router();
 
@@ -173,6 +174,131 @@ router.post("/updateConcert/:cid", async (req, res) => {
     }
   );
 });
+
+router.post("/updateConcertChannel/:cid", (req, res) => {
+  const cid = parseInt(req.params.cid);
+  const concert: UpdateConcertChannelPostReq = req.body;
+
+  // ค้นหาคอนเสิร์ตด้วย CID ก่อน
+  conn.query("SELECT * FROM Concert WHERE CID = ?", [cid], (err, result) => {
+    if (err) {
+      res.status(500).send("Error finding concert");
+    } else {
+      if (result[0] === null) {
+        res.status(500).send("Error finding concert");
+      } else {
+        // ค้นหา Concert_Channel ด้วย CCID
+        conn.query(
+          "SELECT * FROM Concert_Channel WHERE CCID = ?",
+          [concert.CCID],
+          (err, result) => {
+            if (err) {
+              res.status(500).send("Error finding concert channel");
+            } else {
+              if (result.length === 0) {
+                // ถ้าไม่เจอข้อมูลของ CCID ในตาราง Concert_Channel ให้ทำการ INSERT
+                let insertSql =
+                  "INSERT INTO Concert_Channel (concert_ID, url) VALUES (?, ?)";
+                insertSql = mysql.format(insertSql, [cid, concert.url]);
+
+                conn.query(insertSql, (err, result) => {
+                  if (err) {
+                    res.status(500).json({
+                      affected_row: 0,
+                      result: err.sqlMessage,
+                    });
+                  } else {
+                    res.status(200).json({
+                      affected_row: result.affectedRows,
+                      message: "Concert channel inserted successfully",
+                      result: result,
+                    });
+                  }
+                });
+              } else {
+                // ถ้าเจอข้อมูล CCID ใน Concert_Channel ให้ทำการ UPDATE
+                let updateSql =
+                  "UPDATE Concert_Channel SET concert_ID = ?, url = ? WHERE CCID = ?";
+                updateSql = mysql.format(updateSql, [
+                  cid,
+                  concert.url,
+                  concert.CCID,
+                ]);
+
+                conn.query(updateSql, (err, result) => {
+                  if (err) {
+                    res.status(500).json({
+                      affected_row: 0,
+                      result: err.sqlMessage,
+                    });
+                  } else {
+                    res.status(200).json({
+                      affected_row: result.affectedRows,
+                      message: "Concert channel updated successfully",
+                      result: result,
+                    });
+                  }
+                });
+              }
+            }
+          }
+        );
+      }
+    }
+  });
+});
+
+
+// router.post("/updateConcertChannel/:cid", (req, res) => {
+//   const cid = parseInt(req.params.cid);
+//   const concert: UpdateConcertChannelPostReq = req.body;
+
+//   conn.query("SELECT * FROM Concert WHERE  CID = ?", [cid], (err, result) => {
+//     if (err) {
+//       res.status(500).send("Error finding concert");
+//     } else {
+//       if (result[0] === null) {
+//         res.status(500).send("Error finding concert");
+//       } else {
+//         conn.query(
+//           "SELECT * FROM Concert_Channel WHERE  CCID = ?",
+//           [concert.CCID],
+//           (err, result) => {
+//             if (err) {
+//               res.status(500).send("Error finding concert channel");
+//             } else {
+//               if (result[0] === null) {
+//                 res.status(500).send("Error finding concert channel");
+//               } else {
+//                 let sql =
+//                   "UPDATE Concert_Channel SET concert_ID = ?, url = ? WHERE CCID = ?";
+//                 sql = mysql.format(sql, [cid, concert.url, concert.CCID]);
+
+//                 conn.query(sql, (err, result) => {
+//                   if (err) {
+//                     res.status(500).json({
+//                       affected_row: 0,
+//                       result: err.sqlMessage,
+//                     });
+//                   } else {
+//                     res.status(200).json({
+//                       affected_row: result.affectedRows,
+//                       result: result,
+//                     });
+//                   }
+//                 });
+//               }
+//             }
+//           }
+//         );
+//       }
+//     }
+//   });
+// });
+
+// router.post("/updateConcertShow/:cid", (req, res) =>{
+//   const cid  = parseInt(req.params.cid);
+// });
 
 router.post(
   "/addconcert/:uid",
