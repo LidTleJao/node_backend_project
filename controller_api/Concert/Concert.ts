@@ -15,6 +15,7 @@ import { ConcertShowTimePostReq } from "../../model/Request/Concert/ConcertShowT
 import { ConcertTicketPostReq } from "../../model/Request/Concert/ConcertTicketPostReq";
 import { UpdateConcertPostReq } from "../../model/Request/Concert/UpdateConcertPostReq";
 import { UpdateConcertChannelPostReq } from "../../model/Request/Concert/UpdateConcertChannel";
+import { UpdateConcertShowPostReq } from "../../model/Request/Concert/UpdateConcertShowPostReq";
 
 export const router = express.Router();
 
@@ -249,56 +250,61 @@ router.post("/updateConcertChannel/:cid", (req, res) => {
 });
 
 
-// router.post("/updateConcertChannel/:cid", (req, res) => {
-//   const cid = parseInt(req.params.cid);
-//   const concert: UpdateConcertChannelPostReq = req.body;
+router.post("/updateConcertShow/:cid", (req, res) =>{
+  const cid  = parseInt(req.params.cid);
+  const concert: UpdateConcertShowPostReq = req.body;
 
-//   conn.query("SELECT * FROM Concert WHERE  CID = ?", [cid], (err, result) => {
-//     if (err) {
-//       res.status(500).send("Error finding concert");
-//     } else {
-//       if (result[0] === null) {
-//         res.status(500).send("Error finding concert");
-//       } else {
-//         conn.query(
-//           "SELECT * FROM Concert_Channel WHERE  CCID = ?",
-//           [concert.CCID],
-//           (err, result) => {
-//             if (err) {
-//               res.status(500).send("Error finding concert channel");
-//             } else {
-//               if (result[0] === null) {
-//                 res.status(500).send("Error finding concert channel");
-//               } else {
-//                 let sql =
-//                   "UPDATE Concert_Channel SET concert_ID = ?, url = ? WHERE CCID = ?";
-//                 sql = mysql.format(sql, [cid, concert.url, concert.CCID]);
+  conn.query(
+    "SELECT * FROM Concert WHERE CID = ?",[cid],
+    (err, result) =>{
+      if (err) {
+        res.status(500).send("Error finding concert");
+      } else {
+        if (result[0] == null) {
+          res.status(500).send("Error finding concert");
+        } else {
+          conn.query(
+            "SELECT * FROM Concert_ShowTime WHERE CSTID = ?",
+            [concert.CSTID],
+            (err, result)=>{
+              if (err) {
+                res.status(500).send("Error finding concert showtime");
+              } else {
+                if (result[0] == null) {
+                  res.status(500).send("Error finding concert showtime");
+                } else {
+                  let updateSql =
+                  "UPDATE Concert_ShowTime SET concert_ID = ?, show_concert = ?, time_show_concert = ? WHERE CSTID = ?";
+                  updateSql = mysql.format(updateSql, [
+                    cid,
+                    concert.show_concert,
+                    concert.time_show_concert,
+                    concert.CSTID,
+                  ]);
 
-//                 conn.query(sql, (err, result) => {
-//                   if (err) {
-//                     res.status(500).json({
-//                       affected_row: 0,
-//                       result: err.sqlMessage,
-//                     });
-//                   } else {
-//                     res.status(200).json({
-//                       affected_row: result.affectedRows,
-//                       result: result,
-//                     });
-//                   }
-//                 });
-//               }
-//             }
-//           }
-//         );
-//       }
-//     }
-//   });
-// });
-
-// router.post("/updateConcertShow/:cid", (req, res) =>{
-//   const cid  = parseInt(req.params.cid);
-// });
+                  conn.query(updateSql, (err, result) => {
+                    if (err) {
+                      res.status(500).json({
+                        affected_row: 0,
+                        result: err.sqlMessage,
+                      });
+                    } else {
+                      res.status(200).json({
+                        affected_row: result.affectedRows,
+                        message: "Concert showtime updated successfully",
+                        result: result,
+                      });
+                    }
+                  });
+                }
+              }
+            }
+          );
+        }
+      }
+    }
+  );
+});
 
 router.post(
   "/addconcert/:uid",
