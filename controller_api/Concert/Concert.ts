@@ -198,8 +198,8 @@ router.post("/updateConcertChannel/:cid", (req, res) => {
               if (result.length === 0) {
                 // ถ้าไม่เจอข้อมูลของ CCID ในตาราง Concert_Channel ให้ทำการ INSERT
                 let insertSql =
-                  "INSERT INTO Concert_Channel (concert_ID, url) VALUES (?, ?)";
-                insertSql = mysql.format(insertSql, [cid, concert.url]);
+                  "INSERT INTO Concert_Channel (concert_ID, channel) VALUES (?, ?)";
+                insertSql = mysql.format(insertSql, [cid, concert.channel]);
 
                 conn.query(insertSql, (err, result) => {
                   if (err) {
@@ -218,10 +218,10 @@ router.post("/updateConcertChannel/:cid", (req, res) => {
               } else {
                 // ถ้าเจอข้อมูล CCID ใน Concert_Channel ให้ทำการ UPDATE
                 let updateSql =
-                  "UPDATE Concert_Channel SET concert_ID = ?, url = ? WHERE CCID = ?";
+                  "UPDATE Concert_Channel SET concert_ID = ?, channel = ? WHERE CCID = ?";
                 updateSql = mysql.format(updateSql, [
                   cid,
-                  concert.url,
+                  concert.channel,
                   concert.CCID,
                 ]);
 

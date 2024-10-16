@@ -1,4 +1,4 @@
 export interface UpdateConcertChannelPostReq {
     CCID: number;
-    url: string;
+    channel: string;
 }
