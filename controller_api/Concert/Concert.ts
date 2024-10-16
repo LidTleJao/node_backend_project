@@ -75,7 +75,7 @@ router.get("/concertByUser/:uid", (req, res) => {
 router.get("/concertChannel/:cid", (req, res) => {
   const CID = +req.params.cid;
   conn.query(
-    "SELECT Concert_Channel.CCID, Concert_Channel.concert_ID, Concert_Channel.url FROM Concert_Channel INNER JOIN Concert ON Concert.CID = Concert_Channel.concert_ID WHERE Concert_Channel.concert_ID = ?",
+    "SELECT Concert_Channel.CCID, Concert_Channel.concert_ID, Concert_Channel.channel FROM Concert_Channel INNER JOIN Concert ON Concert.CID = Concert_Channel.concert_ID WHERE Concert_Channel.concert_ID = ?",
     [CID],
     (err, result) => {
       if (err) {
