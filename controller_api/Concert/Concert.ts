@@ -388,14 +388,14 @@ router.post("/addurl/:cid", (req, res) => {
     [cid],
     async (err, result) => {
       if (err) {
-        res.status(500).send("Not Found Concert");
+        res.status(500).send("Not Found Concert" + err);
       } else {
-        if (result[0]) {
+        if (result[0] == null) {
           res.status(500).send("Not Found Concert");
         } else {
           let sql =
-            "INSERT INTO Concert_Channel (`Concert_ID`,`url`) VALUES (?,?)";
-          sql = mysql.format(sql, [(concert.concert_ID = cid), concert.url]);
+            "INSERT INTO Concert_Channel (`concert_ID`,`channel`) VALUES (?,?)";
+          sql = mysql.format(sql, [(concert.concert_ID = cid), concert.channel]);
 
           conn.query(sql, (err, result) => {
             if (err) {
