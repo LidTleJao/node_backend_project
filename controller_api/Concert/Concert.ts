@@ -325,7 +325,7 @@ router.post("/updateConcertTicket/:cid", (req, res) => {
                 res.status(500).send("Error finding concert ticket type");
               } else {
                 let updateSql =
-                  "UPDATE Concert_Tickket SET concert_ID = ?, type_ticket_ID = ?, ticket_zone = ?, price = ? WHERE CTID = ?";
+                  "UPDATE Concert_Ticket SET concert_ID = ?, type_ticket_ID = ?, ticket_zone = ?, price = ? WHERE CTID = ?";
                 updateSql = mysql.format(updateSql, [
                   (concert.concert_ID = cid),
                   concert.type_ticket_ID,
