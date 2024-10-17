@@ -29,7 +29,7 @@ const fileUpload = new FileMiddleware();
 
 router.get("/allHotel", (req, res) => {
   conn.query(
-    "SELECT Hotel.HID, Hotel.hotel_user_ID,User.name_user, Hotel.hotel_type_ID, Type_Hotel.typename_hotel, Hotel.name, Hotel.address, Hotel.detail, Hotel.latitude, Hotel.longtitude, Hotel.datetime_addhotel FROM Hotel INNER JOIN Type_Hotel ON Type_Hotel.THID = Hotel.hotel_type_ID INNER JOIN User ON User.UID = Hotel.hotel_user_ID",
+    "SELECT Hotel.HID, Hotel.hotel_user_ID,User.name_user, Hotel.hotel_type_ID, Type_Hotel.typename_hotel, Hotel.name,Hotel.province, Hotel.address, Hotel.detail, Hotel.latitude, Hotel.longtitude, Hotel.datetime_addhotel FROM Hotel INNER JOIN Type_Hotel ON Type_Hotel.THID = Hotel.hotel_type_ID INNER JOIN User ON User.UID = Hotel.hotel_user_ID",
     (err, result) => {
       if (err) {
         res.status(500).json({ error: err.message });
@@ -43,7 +43,7 @@ router.get("/allHotel", (req, res) => {
 router.get("/:hid", (req, res) => {
   const HID = +req.params.hid;
   conn.query(
-    "SELECT Hotel.HID, Hotel.hotel_user_ID,User.name_user, Hotel.hotel_type_ID, Type_Hotel.typename_hotel, Hotel.name, Hotel.address, Hotel.detail, Hotel.latitude, Hotel.longtitude, Hotel.datetime_addhotel FROM Hotel INNER JOIN Type_Hotel ON Type_Hotel.THID = Hotel.hotel_type_ID INNER JOIN User ON User.UID = Hotel.hotel_user_ID WHERE Hotel.HID = ?",
+    "SELECT Hotel.HID, Hotel.hotel_user_ID,User.name_user, Hotel.hotel_type_ID, Type_Hotel.typename_hotel, Hotel.name,Hotel.province, Hotel.address, Hotel.detail, Hotel.latitude, Hotel.longtitude, Hotel.datetime_addhotel FROM Hotel INNER JOIN Type_Hotel ON Type_Hotel.THID = Hotel.hotel_type_ID INNER JOIN User ON User.UID = Hotel.hotel_user_ID WHERE Hotel.HID = ?",
       
     [HID],
     (err, result) => {
