@@ -33,6 +33,21 @@ router.get("/ConcertDealByCDID/:cdid",(req, res) =>{
   );
 })
 
+router.get("/ConcertDealAllByCDID/:cdid",(req, res) =>{
+  const cdid = +req.params.cdid;
+  conn.query(
+    "SELECT Concert_Deals.CDID , Concert.user_ID, Concert_Deals.ticket_ID, Concert.name_concert, Concert.province, Concert_Ticket.type_ticket_ID, Concert_Ticket_Type.name_type_ticket, Concert_Deals.status_ID, Status_Deals.name_status, Concert_Deals.number_of_tickets, Concert_Deals.concert_deal_price, Concert_Deals.s_datetime, Concert_Deals.e_datetime FROM Concert_Deals INNER JOIN Concert_Ticket ON Concert_Ticket.CTID = Concert_Deals.ticket_ID INNER JOIN Concert_Ticket_Type ON Concert_Ticket_Type.CTTID = Concert_Ticket.type_ticket_ID INNER JOIN Concert ON Concert.CID = Concert_Ticket.concert_ID INNER JOIN Status_Deals ON Status_Deals.SDID = Concert_Deals.status_ID WHERE Concert_Deals.CDID = ? AND Concert_Deals.e_datetime >= NOW()",
+    [cdid],
+    (err, result) => {
+      if (err) {
+        res.status(500).json({ error: err.message });
+      } else {
+        res.status(200).json(result);
+      }
+    }
+  );
+})
+
 router.get("/ConcertDealByUser/:uid",(req, res) =>{
   const uid = +req.params.uid;
   conn.query(
