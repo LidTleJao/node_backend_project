@@ -64,36 +64,88 @@ router.post("/register", (req, res) => {
     return res.status(400).json({ error: "Password is required" });
   }
 
-  let sql =
-    "INSERT INTO User (image_user, name_user, nickname_user, province, gmail_user, password_user, datetime_register, facebook, phone, type_user) VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?)";
-  sql = mysql.format(sql, [
-    user.image_user,
-    user.name_user,
-    user.nickname_user,
-    user.province,
-    user.gmail_user,
-    hashPassword(user.password_user),
-    user.facebook,
-    user.phone,
-    user.type_user,
-  ]);
-
-  conn.query(sql, (err, result) => {
+  // ตรวจสอบว่าอีเมลนี้มีอยู่ในฐานข้อมูลหรือไม่
+  const checkEmailSql = "SELECT gmail_user FROM User WHERE gmail_user = ?";
+  conn.query(checkEmailSql, [user.gmail_user], (err, result) => {
     if (err) {
-      res.status(401).json({
-        affected_row: 0,
-        last_idx: 0,
-        result: err.sqlMessage,
-      });
-    } else {
-      res.status(201).json({
-        affected_row: result.affectedRows,
-        last_idx: result.insertId,
-        result: "",
-      });
+      return res.status(500).json({ error: "Database query error" });
     }
+
+    if (result.length > 0) {
+      // ถ้าอีเมลมีอยู่แล้ว
+      return res.status(404).json({ error: "Email already exists" });
+    }
+
+    // ถ้าอีเมลยังไม่มี ให้ทำการเพิ่มข้อมูลผู้ใช้
+    let sql =
+      "INSERT INTO User (image_user, name_user, nickname_user, province, gmail_user, password_user, datetime_register, facebook, phone, type_user) VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?)";
+    sql = mysql.format(sql, [
+      user.image_user,
+      user.name_user,
+      user.nickname_user,
+      user.province,
+      user.gmail_user,
+      hashPassword(user.password_user),
+      user.facebook,
+      user.phone,
+      user.type_user,
+    ]);
+
+    conn.query(sql, (err, result) => {
+      if (err) {
+        return res.status(401).json({
+          affected_row: 0,
+          last_idx: 0,
+          result: err.sqlMessage,
+        });
+      } else {
+        return res.status(201).json({
+          affected_row: result.affectedRows,
+          last_idx: result.insertId,
+          result: "",
+        });
+      }
+    });
   });
 });
+
+// router.post("/register", (req, res) => {
+//   const user: UserPostReq = req.body;
+
+//   if (!user.password_user) {
+//     return res.status(400).json({ error: "Password is required" });
+//   }
+
+//   let sql =
+//     "INSERT INTO User (image_user, name_user, nickname_user, province, gmail_user, password_user, datetime_register, facebook, phone, type_user) VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?)";
+//   sql = mysql.format(sql, [
+//     user.image_user,
+//     user.name_user,
+//     user.nickname_user,
+//     user.province,
+//     user.gmail_user,
+//     hashPassword(user.password_user),
+//     user.facebook,
+//     user.phone,
+//     user.type_user,
+//   ]);
+
+//   conn.query(sql, (err, result) => {
+//     if (err) {
+//       res.status(401).json({
+//         affected_row: 0,
+//         last_idx: 0,
+//         result: err.sqlMessage,
+//       });
+//     } else {
+//       res.status(201).json({
+//         affected_row: result.affectedRows,
+//         last_idx: result.insertId,
+//         result: "",
+//       });
+//     }
+//   });
+// });
 
 router.post("/login", (req, res) => {
   const login: LoginPostReq = req.body;
@@ -178,7 +230,6 @@ router.post(
     );
   }
 );
-
 
 async function firebaseUpload(file: Express.Multer.File) {
   // Upload to firebase storage
