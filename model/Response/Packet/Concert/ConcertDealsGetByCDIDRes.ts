@@ -3,6 +3,7 @@ export interface ConcertDealsGetByCDIDRes {
     user_ID:           number;
     ticket_ID:         number;
     name_concert:      string;
+    province: string;
     type_ticket_ID:    number;
     name_type_ticket:  string;
     status_ID:         number;

@@ -3,6 +3,7 @@ export interface HotelDealsGetByHDIDRes {
   hotel_user_ID: number;
   room_ID: number;
   name: string;
+  province: string;
   room_type_ID: number;
   type_room: string;
   room_view_type_ID: number;
