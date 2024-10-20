@@ -48,10 +48,10 @@ router.get("/HotelDealByUser/:uid",(req, res)=>{
   );
 })
 
-router.get("/HotelDealAllByUser/:uid",(req, res)=>{
+router.get("/HotelDealType2ByUser/:uid",(req, res)=>{
   const uid = +req.params.uid;
   conn.query(
-    "SELECT Hotel_Deals.HDID,Hotel.hotel_user_ID, Hotel_Deals.room_ID, Hotel.name, Hotel.province, Hotel_Room.room_type_ID, Room_Type.type_room, Hotel_Room.room_view_type_ID, Room_Type_View.type_view_name_room, Hotel_Deals.status_ID, Status_Deals.name_status, Hotel_Deals.hotel_deal_price, Hotel_Deals.number_of_rooms, Hotel_Deals.s_datetime, Hotel_Deals.e_datetime FROM Hotel_Deals INNER JOIN Hotel_Room ON Hotel_Room.HRID = Hotel_Deals.room_ID INNER JOIN Status_Deals ON Status_Deals.SDID = Hotel_Deals.status_ID INNER JOIN Hotel ON Hotel.HID = Hotel_Room.hotel_ID INNER JOIN Room_Type ON Room_Type.RTID = Hotel_Room.room_type_ID INNER  JOIN Room_Type_View ON Room_Type_View.RTVID = Hotel_Room.room_view_type_ID WHERE Hotel.hotel_user_ID = ?",
+    "SELECT Hotel_Deals.HDID,Hotel.hotel_user_ID, Hotel_Deals.room_ID, Hotel.name, Hotel.province, Hotel_Room.room_type_ID, Room_Type.type_room, Hotel_Room.room_view_type_ID, Room_Type_View.type_view_name_room, Hotel_Deals.status_ID, Status_Deals.name_status, Hotel_Deals.hotel_deal_price, Hotel_Deals.number_of_rooms, Hotel_Deals.s_datetime, Hotel_Deals.e_datetime FROM Hotel_Deals INNER JOIN Hotel_Room ON Hotel_Room.HRID = Hotel_Deals.room_ID INNER JOIN Status_Deals ON Status_Deals.SDID = Hotel_Deals.status_ID INNER JOIN Hotel ON Hotel.HID = Hotel_Room.hotel_ID INNER JOIN Room_Type ON Room_Type.RTID = Hotel_Room.room_type_ID INNER  JOIN Room_Type_View ON Room_Type_View.RTVID = Hotel_Room.room_view_type_ID WHERE Hotel.hotel_user_ID = ? AND Hotel_Deals.status_ID = 2",
     [uid],
     (err, result) => {
       if (err) {
