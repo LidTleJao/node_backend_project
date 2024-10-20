@@ -79,7 +79,7 @@ router.post("/appHotelDeal/:rid/:nbr", (req, res) => {
           res.status(500).send("Not Found Room Because " + err);
         } else {
           let sql =
-            "INSERT  INTO Hotel_Deals (`room_ID`,`status_ID`,`price`,`number_of_rooms`,`s_datetime`,`e_datetime`) VALUES(?,?,?,?,?,?)";
+            "INSERT  INTO Hotel_Deals (`room_ID`,`status_ID`,`hotel_deal_price`,`number_of_rooms`,`s_datetime`,`e_datetime`) VALUES(?,?,?,?,?,?)";
           sql = mysql.format(sql, [
             (hotelDeal.room_ID = rid),
             hotelDeal.status_ID,
