@@ -8,6 +8,7 @@ export interface PacketGetPIDRes {
     show_schedule_concert: Date;
     lineup:                string;
     poster_concert:        string;
+    detail_concert:        string;
     ticket_zone:           string;
     type_ticket_ID:        number;
     name_type_ticket:      string;
@@ -24,6 +25,7 @@ export interface PacketGetPIDRes {
     type_room:             string;
     room_view_type_ID:     number;
     type_view_name_room:   string;
+    Number_of_guests:      number;
     number_of_rooms:       number;
     hotel_deal_price:      number;
     s_deadline_package:    Date;
