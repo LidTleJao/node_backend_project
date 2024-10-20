@@ -14,6 +14,7 @@ import {
 import multer from "multer";
 import { storage } from "../../firebase";
 import { UpdateHotelPostReq } from "../../model/Request/Hotel/UpdateHotelPostReq";
+import { UpdateHotelChannelPostReq } from "../../model/Request/Hotel/UpdateHotelChannelPostReq";
 
 export const router = express.Router();
 
@@ -45,7 +46,7 @@ router.get("/:hid", (req, res) => {
   const HID = +req.params.hid;
   conn.query(
     "SELECT Hotel.HID, Hotel.hotel_user_ID,User.name_user, Hotel.hotel_type_ID, Type_Hotel.typename_hotel, Hotel.name,Hotel.province, Hotel.address, Hotel.detail, Hotel.latitude, Hotel.longtitude, Hotel.datetime_addhotel FROM Hotel INNER JOIN Type_Hotel ON Type_Hotel.THID = Hotel.hotel_type_ID INNER JOIN User ON User.UID = Hotel.hotel_user_ID WHERE Hotel.HID = ?",
-      
+
     [HID],
     (err, result) => {
       if (err) {
@@ -91,7 +92,7 @@ router.get("/hotelByUser/:uid", (req, res) => {
   const UID = +req.params.uid;
   conn.query(
     "SELECT Hotel.HID, Hotel.hotel_user_ID,User.name_user, Hotel.hotel_type_ID, Type_Hotel.typename_hotel, Hotel.name, Hotel.address, Hotel.detail, Hotel.latitude, Hotel.longtitude, Hotel.datetime_addhotel FROM Hotel INNER JOIN Type_Hotel ON Type_Hotel.THID = Hotel.hotel_type_ID INNER JOIN User ON User.UID = Hotel.hotel_user_ID WHERE Hotel.hotel_user_ID = ?",
-      
+
     [UID],
     (err, result) => {
       if (err) {
@@ -103,24 +104,24 @@ router.get("/hotelByUser/:uid", (req, res) => {
   );
 });
 
-router.post("/updateHotel/:hid", async (req, res) =>{
+router.post("/updateHotel/:hid", (req, res) => {
   const hid = parseInt(req.params.hid);
-  const hotel : UpdateHotelPostReq = req.body;
+  const hotel: UpdateHotelPostReq = req.body;
 
   conn.query(
     "SELECT * FROM Type_Hotel WHERE THID = ?",
     [hotel.hotel_type_ID],
-    (err, result) =>{
+    (err, result) => {
       if (err) {
         res.status(500).send("Error finding hotel type");
       } else {
         if (result[0] === null) {
           res.status(500).send("Error finding hotel type");
-        }  else {
+        } else {
           conn.query(
             "SELECT * FROM Hotel WHERE HID = ?",
             [hid],
-            (err, result) =>{
+            (err, result) => {
               if (err) {
                 res.status(500).send("Not Found Hotel");
               } else {
@@ -128,14 +129,14 @@ router.post("/updateHotel/:hid", async (req, res) =>{
                   res.status(500).send("Not Found Hotel");
                 } else {
                   let sql =
-                  "UPDATE Hotel SET hotel_type_ID = ?, address = ?, detail = ? WHERE HID =?";
+                    "UPDATE Hotel SET hotel_type_ID = ?, address = ?, detail = ? WHERE HID =?";
                   sql = mysql.format(sql, [
                     hotel.hotel_type_ID,
                     hotel.address,
                     hotel.detail,
                     hid,
                   ]);
-                  
+
                   conn.query(sql, (err, result) => {
                     if (err) {
                       res.status(500).json({
@@ -157,6 +158,75 @@ router.post("/updateHotel/:hid", async (req, res) =>{
       }
     }
   );
+});
+
+router.post("/updateHotelChannel/:hid", (req, res) => {
+  const hid = parseInt(req.params.hid);
+  const hotel: UpdateHotelChannelPostReq = req.body;
+
+  conn.query("SELECT * FROM Hotel WHERE HID = ?", [hid], (err, result) => {
+    if (err) {
+      res.status(500).send("Error finding hotel");
+    } else {
+      if (result[0] === null) {
+        res.status(500).send("Error finding hotel");
+      } else {
+        conn.query(
+          "SELECT * FROM Hotel_Channel WHERE HCID = ?",
+          [hotel.HCID],
+          (err, result) => {
+            if (err) {
+              res.status(500).send("Error finding hotel channel");
+            } else {
+              if (result.length === 0) {
+                let insertSql =
+                  "INSERT INTO Hotel_Channel (hotel_ID,url) VALUES (?, ?)";
+                insertSql = mysql.format(insertSql, [hid, hotel.url]);
+
+                conn.query(insertSql, (err, result) => {
+                  if (err) {
+                    res.status(500).json({
+                      affected_row: 0,
+                      result: err.sqlMessage,
+                    });
+                  } else {
+                    res.status(200).json({
+                      affected_row: result.affectedRows,
+                      message: "Hotel channel inserted successfully",
+                      result: result,
+                    });
+                  }
+                });
+              } else {
+                let updateSql =
+                  "UPDATE Hotel_Channel SET hotel_ID = ?, url = ? WHERE HCID = ?";
+                updateSql = mysql.format(updateSql, [
+                  hid,
+                  hotel.url,
+                  hotel.HCID,
+                ]);
+
+                conn.query(updateSql, (err, result) => {
+                  if (err) {
+                    res.status(500).json({
+                      affected_row: 0,
+                      result: err.sqlMessage,
+                    });
+                  } else {
+                    res.status(200).json({
+                      affected_row: result.affectedRows,
+                      message: "Hotel channel inserted successfully",
+                      result: result,
+                    });
+                  }
+                });
+              }
+            }
+          }
+        );
+      }
+    }
+  });
 });
 
 router.post("/addHotel/:uid", (req, res) => {
