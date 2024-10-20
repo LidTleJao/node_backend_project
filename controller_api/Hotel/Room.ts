@@ -11,6 +11,7 @@ import {
 import multer from "multer";
 import { storage } from "../../firebase";
 import { RoomImagePostReq } from "../../model/Request/Hotel/RoomImagePostReq";
+import { UpdateRoomPostReq } from "../../model/Request/Hotel/UpdateRoomPostReq";
 
 export const router = express.Router();
 
@@ -49,6 +50,94 @@ router.get("/roomAllByHid/:hid", (req, res) => {
         res.status(500).json({ error: err.message });
       } else {
         res.status(200).json(result);
+      }
+    }
+  );
+});
+
+router.post("updateRoom/:hid", (req, res) =>{
+  const hid = +req.params.hid;
+  const hotel: UpdateRoomPostReq = req.body;
+
+  conn.query(
+    "SELECT * FROM Hotel WHERE HID = ?",[hid]
+    ,(err, result)=>{
+      if (err) {
+        res.status(500).send("Error finding hotel");
+      } else {
+        if(result === null){
+          res.status(500).send("Error finding hotel");
+        }else{
+          conn.query(
+            "SELECT * FROM Room_Type WHERE RTID = ?",
+            [hotel.room_type_ID],
+            (err, result) =>{
+              if (err) {
+                res.status(500).send("Error finding room type");
+              } else {
+                if (result[0] === null) {
+                  res.status(500).send("Error finding room type");
+                } else {
+                  conn.query(
+                    "SELECT * FROM Room_Type_View WHERE RTVID = ?",
+                    [hotel.room_view_type_ID],
+                    (err, result) =>{
+                      if (err) {
+                        res.status(500).send("Error finding room view type");
+                      } else {
+                        if (result[0] === null) {
+                          res.status(500).send("Error finding room view type");
+                        } else {
+                          conn.query(
+                            "SELECT * FROM Room_Status WHERE RSID = ?",
+                            [hotel.room_status_ID],
+                            (err, result) =>{
+                              if (err) {
+                                res.status(500).send("Error finding room status");
+                              } else {
+                                if (result[0] === null) {
+                                  res.status(500).send("Error finding room status");
+                                } else {
+                                  let updateSql =
+                                  "UPDATE Hotel_Room SET hotel_ID = ?, price = ?, Number_of_guests = ?, Number_of_rooms = ?, room_type_ID = ?, room_view_type_ID = ?, room_status_ID = ? WHERE HRID = ?";
+                                  updateSql = mysql.format(updateSql,[
+                                    (hotel.hotel_ID = hid),
+                                    hotel.price,
+                                    hotel.Number_of_guests,
+                                    hotel.Number_of_rooms,
+                                    hotel.room_type_ID,
+                                    hotel.room_view_type_ID,
+                                    hotel.room_status_ID,
+                                    hotel.HRID,
+                                  ]);
+
+                                  conn.query(updateSql, (err, result) => {
+                                    if (err) {
+                                      res.status(500).json({
+                                        affected_row: 0,
+                                        result: err.sqlMessage,
+                                      });
+                                    } else {
+                                      res.status(200).json({
+                                        affected_row: result.affectedRows,
+                                        message: "Hotel Room updated successfully",
+                                        result: result,
+                                      });
+                                    }
+                                  });
+                                }
+                              }
+                            }
+                          );
+                        }
+                      }
+                    }
+                  );
+                }
+              }
+            }
+          );
+        }
       }
     }
   );
