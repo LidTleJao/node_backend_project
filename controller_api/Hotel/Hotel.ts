@@ -13,6 +13,7 @@ import {
 } from "firebase/storage";
 import multer from "multer";
 import { storage } from "../../firebase";
+import { UpdateHotelPostReq } from "../../model/Request/Hotel/UpdateHotelPostReq";
 
 export const router = express.Router();
 
@@ -97,6 +98,62 @@ router.get("/hotelByUser/:uid", (req, res) => {
         res.status(500).json({ error: err.message });
       } else {
         res.status(200).json(result);
+      }
+    }
+  );
+});
+
+router.post("/updateHotel/:hid", async (req, res) =>{
+  const hid = parseInt(req.params.hid);
+  const hotel : UpdateHotelPostReq = req.body;
+
+  conn.query(
+    "SELECT * FROM Type_Hotel WHERE THID = ?",
+    [hotel.hotel_type_ID],
+    (err, result) =>{
+      if (err) {
+        res.status(500).send("Error finding hotel type");
+      } else {
+        if (result[0] === null) {
+          res.status(500).send("Error finding hotel type");
+        }  else {
+          conn.query(
+            "SELECT * FROM Hotel WHERE HID = ?",
+            [hid],
+            (err, result) =>{
+              if (err) {
+                res.status(500).send("Not Found Hotel");
+              } else {
+                if (result[0] == null) {
+                  res.status(500).send("Not Found Hotel");
+                } else {
+                  let sql =
+                  "UPDATE Hotel SET hotel_type_ID = ?, address = ?, detail = ? WHERE HID =?";
+                  sql = mysql.format(sql, [
+                    hotel.hotel_type_ID,
+                    hotel.address,
+                    hotel.detail,
+                    hid,
+                  ]);
+                  
+                  conn.query(sql, (err, result) => {
+                    if (err) {
+                      res.status(500).json({
+                        affected_row: 0,
+                        result: err.sqlMessage,
+                      });
+                    } else {
+                      res.status(200).json({
+                        affected_row: result.affectedRows,
+                        result: result,
+                      });
+                    }
+                  });
+                }
+              }
+            }
+          );
+        }
       }
     }
   );
