@@ -8,6 +8,7 @@ export interface PacketGetAllRes {
     show_schedule_concert: Date;
     lineup:                string;
     poster_concert:        string;
+    address_concert:       string;
     detail_concert:        string;
     ticket_zone:           string;
     type_ticket_ID:        number;
