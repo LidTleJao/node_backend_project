@@ -55,7 +55,7 @@ router.get("/roomAllByHid/:hid", (req, res) => {
   );
 });
 
-router.post("updateRoom/:hid", (req, res) =>{
+router.post("/updateRoom/:hid", (req, res) =>{
   const hid = +req.params.hid;
   const hotel: UpdateRoomPostReq = req.body;
 
