@@ -129,8 +129,9 @@ router.post("/updateHotel/:hid", (req, res) => {
                   res.status(500).send("Not Found Hotel");
                 } else {
                   let sql =
-                    "UPDATE Hotel SET hotel_type_ID = ?, address = ?, detail = ? WHERE HID =?";
+                    "UPDATE Hotel SET name = ?,hotel_type_ID = ?, address = ?, detail = ? WHERE HID =?";
                   sql = mysql.format(sql, [
+                    hotel.name,
                     hotel.hotel_type_ID,
                     hotel.address,
                     hotel.detail,
